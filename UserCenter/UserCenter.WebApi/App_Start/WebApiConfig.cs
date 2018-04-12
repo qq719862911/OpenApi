@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Dispatcher;
+using UserCenter.WebApi.Filters;
 
 namespace UserCenter.WebApi
 {
@@ -22,6 +23,10 @@ namespace UserCenter.WebApi
             );
             config.Services.Replace(typeof(IHttpControllerSelector),
                 new VersionControllerSelector(config));
+
+            //一个对象必须是IOC容器创建出来的，IOC容器才会自动帮我们注入
+            UCAuthorizationFilter authorFilter = (UCAuthorizationFilter)GlobalConfiguration.Configuration.DependencyResolver.GetService(typeof(UCAuthorizationFilter));
+            config.Filters.Add(authorFilter);
         }
     }
 }

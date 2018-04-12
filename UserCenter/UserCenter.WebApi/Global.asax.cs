@@ -10,6 +10,7 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using UserCenter.IServices;
+using UserCenter.WebApi.Filters;
 
 namespace UserCenter.WebApi
 {
@@ -32,6 +33,7 @@ namespace UserCenter.WebApi
             builder.RegisterApiControllers(Assembly.GetExecutingAssembly()).PropertiesAutowired();
             builder.RegisterWebApiFilterProvider(configuration);
             //一个对象必须是IOC容器创建出来的，IOC容器才会自动帮我们注入
+            builder.RegisterType(typeof(UCAuthorizationFilter)).PropertiesAutowired();
 
             var services = Assembly.Load("UserCenter.Services");
             builder.RegisterAssemblyTypes(services)
@@ -42,6 +44,7 @@ namespace UserCenter.WebApi
             // Set the WebApi dependency resolver.  
             var resolver = new AutofacWebApiDependencyResolver(container);
             configuration.DependencyResolver = resolver;
+
         }
     }
 }
