@@ -51,6 +51,8 @@
     <Compile Include="SDKResult.cs" />
     <Compile Include="User.cs" />
     <Compile Include="UserApi.cs" />
+    <Compile Include="UserGroup.cs" />
+    <Compile Include="UserGroupApi.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
