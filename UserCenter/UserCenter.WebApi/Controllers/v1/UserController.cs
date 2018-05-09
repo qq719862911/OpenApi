@@ -32,7 +32,12 @@ namespace UserCenter.WebApi.Controllers.v1
         {
             return await UserService.CheckLoginAsync(phoneNum, password);
         }
-
+        /// <summary>
+        /// 用Postman测试，报文头中加入appcode
+        /// http://localhost:1624/api/v1/User/GetById/1 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<UserDTO> GetById(long id)
         {
