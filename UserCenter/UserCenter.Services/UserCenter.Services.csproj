@@ -52,12 +52,15 @@
   <ItemGroup>
     <Compile Include="AppInfoService.cs" />
     <Compile Include="Configs\AppInfoConfig.cs" />
+    <Compile Include="Configs\StaffConfig.cs" />
     <Compile Include="Configs\UserGroupConfig.cs" />
     <Compile Include="Configs\UserConfig.cs" />
     <Compile Include="Models\AppInfo.cs" />
     <Compile Include="Models\BaseModel.cs" />
+    <Compile Include="Models\Staff.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserGroup.cs" />
+    <Compile Include="StaffService.cs" />
     <Compile Include="UCDbContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserGroupService.cs" />

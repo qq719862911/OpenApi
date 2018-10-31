@@ -42,6 +42,8 @@
   <ItemGroup>
     <Compile Include="AppInfoDTO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Staff\StaffDTO.cs" />
+    <Compile Include="Staff\StaffQueryDTO.cs" />
     <Compile Include="UserDTO.cs" />
     <Compile Include="UserGroupDTO.cs" />
   </ItemGroup>

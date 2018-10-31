@@ -8,7 +8,7 @@ using UserCenter.Services.Models;
 
 namespace UserCenter.Services.Configs
 {
-    public class UserGroupConfig : EntityTypeConfiguration<UserGroup>
+    class UserGroupConfig : EntityTypeConfiguration<UserGroup>
     {
         public UserGroupConfig()
         {

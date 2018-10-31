@@ -14,7 +14,13 @@ namespace UserCenter.WebApi.Controllers.v1
     {
         public IUserService UserService { get; set; }
 
-
+        /// <summary>
+        /// http://localhost:1624/api/v1/User/AddNew?phoneNum=120&nickName=hi&password=123
+        /// </summary>
+        /// <param name="phoneNum"></param>
+        /// <param name="nickName"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<long> AddNew(string phoneNum, string nickName, string password)
         {
