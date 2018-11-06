@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace UserCenter.Services.Models
 {
-    public class User : BaseModel
+    public class User //: BaseModel
     {
-
+        public long Id { get; set; }
+        public DateTime CreateDateTime { get; set; } = DateTime.UtcNow;
         public string PhoneNum { get; set; }
         public string NickName { get; set; }
         public string PasswordHash { get; set; }
@@ -17,5 +18,8 @@ namespace UserCenter.Services.Models
         /// 用户有多个用户组
         /// </summary>
         public virtual ICollection<UserGroup> Groups { get; set; } = new List<UserGroup>();
+
+
+        // public virtual Staff Staff { get; set; }//会报错
     }
 }

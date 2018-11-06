@@ -8,6 +8,7 @@ using UserCenter.DTO.Staff;
 using UserCenter.IServices;
 using UserCenter.Services.Models;
 using System.Data.Entity;//这里面有异步方法
+using UserCenter.DTO.Common;
 
 namespace UserCenter.Services
 {
@@ -23,31 +24,115 @@ namespace UserCenter.Services
                 return staff.Id;
             }
         }
+        public async Task UpdateSaveAsync(StaffDTO dto)
+        {
+            using (UCDbContext ctx = new UCDbContext())
+            {
+                var id = dto.Id;
+                var entity = await ctx.Staffs.Where(s => s.Id == id).FirstOrDefaultAsync();
+                if (entity==null)
+                {
+                    throw new Exception("编辑的人员不存在");
+                }
+                entity.JobTitle = dto.JobTitle;
+                entity.ParentId = dto.ParentId;
+                entity.PhoneNumber = dto.PhoneNumber;
+                entity.ResignationDate = dto.ResignationDate;
+                entity.StaffCode = dto.StaffCode;
+                entity.Telephone = dto.Telephone;
+                entity.Birthday = dto.Birthday;
+                entity.CALLNumber = dto.CALLNumber;
+                entity.ChName = dto.ChName;
+                entity.DepartmentId = dto.DepartmentId;
+                entity.EmploymentDate = dto.EmploymentDate;
+                entity.EnName = dto.EnName;
+                entity.Email = dto.Email;
+                entity.Email = dto.Remark;
+
+                entity.UpdateTime = dto.UpdateTime;
+                entity.UserName = dto.UserName;
+                await ctx.SaveChangesAsync();
+            }
+        }
 
         public Task DeleteByCodeAsync(string code)
         {
             throw new NotImplementedException();
         }
 
-        public Task DeleteByIdAsync(long id)
+        public async Task BatchDeleteAsync(string ids)
         {
-            throw new NotImplementedException();
+            var idArr = ids.Split(',').Select(s => { return Convert.ToInt64(s); });
+            using (UCDbContext ctx = new UCDbContext())
+            {
+                var entitys = await ctx.Staffs.Where(s => idArr.Contains(s.Id)).ToListAsync();
+                if (entitys != null)
+                {
+                    ctx.Staffs.RemoveRange(entitys);
+                    await ctx.SaveChangesAsync();
+                }
+            }
+        }
+
+        public async Task DeleteByIdAsync(long id)
+        {
+            using (UCDbContext ctx = new UCDbContext())
+            {
+                var entity = await ctx.Staffs.Where(s=>s.Id == id).FirstOrDefaultAsync();
+                if (entity != null)
+                {
+                    ctx.Staffs.Remove(entity);
+                    await ctx.SaveChangesAsync();
+                }
+            }
         }
 
         public async Task<StaffQueryDTO> GetByIdAsync(long id)
         {
             using (UCDbContext ctx = new UCDbContext())
             {
-                var staff = await ctx.Staffs.Where(s => s.Id == id).SingleOrDefaultAsync();
+                var staff = await ctx.Staffs.Where(s =>s.Status && s.Id == id).SingleOrDefaultAsync();
                 return ToDTO(staff);
             }
         }
 
-        public async Task<IEnumerable<StaffQueryDTO>> GetPageListAsync(int page, int page_size)
+        public async Task<IEnumerable<StaffQueryDTO>> GetPageListAsync(StaffQueryCondModel queryCond)
         {
+            var page = queryCond.Page;
+            var page_size = queryCond.Page_size;
             using (UCDbContext ctx = new UCDbContext())
             {
-                var datas = await ctx.Staffs.OrderBy(s => s.Id).Skip((page - 1) * page_size).Take(page_size).ToListAsync();
+                var queryAble = ctx.Staffs.AsNoTracking().OrderBy(s => s.Id).Where(s=>s.Status);//用asNotracking可以提升一点性能，不跟踪状态变化
+                if (!string.IsNullOrEmpty(queryCond.StaffCode))
+                {
+                    queryAble= queryAble.Where(s => s.StaffCode.Contains(queryCond.StaffCode));
+                }
+                if (!string.IsNullOrEmpty(queryCond.ChName))
+                {
+                    queryAble = queryAble.Where(s => s.ChName.Contains(queryCond.ChName));
+                }
+                if (!string.IsNullOrEmpty(queryCond.ParentCode))
+                {
+                    queryAble = queryAble.Where(s => s.ParentStaff.StaffCode.Contains(queryCond.ParentCode));
+                }
+                if (queryCond.BeginEmploymentDate != DateTime.MinValue&& queryCond.EndEmploymentDate != DateTime.MinValue)
+                {
+                    queryAble = queryAble.Where(s => (DbFunctions.DiffDays(s.EmploymentDate, queryCond.BeginEmploymentDate) <= 0) && (DbFunctions.DiffDays(s.EmploymentDate, queryCond.EndEmploymentDate) >= 0));//后面减前面 &&翻译成 AND
+                }
+                else
+                {
+                    if (queryCond.BeginEmploymentDate != DateTime.MinValue)
+                    {
+                        queryAble = queryAble.Where(s => DbFunctions.DiffDays(s.EmploymentDate, queryCond.BeginEmploymentDate) <= 0);//后面减前面
+                    }
+                    if (queryCond.EndEmploymentDate != DateTime.MinValue)
+                    {
+                        queryAble = queryAble.Where(s => DbFunctions.DiffDays(s.EmploymentDate, queryCond.EndEmploymentDate) >= 0);
+                    }
+                }
+                queryAble = queryAble.Skip((page - 1) * page_size);
+                queryAble = queryAble.Take(page_size);
+                var datas = await queryAble.ToListAsync();
                 List<StaffQueryDTO> staffDtos = new List<StaffQueryDTO>();
                 foreach (var item in datas)
                 {
@@ -61,26 +146,9 @@ namespace UserCenter.Services
 
         public Task<bool> StaffExistsAsync(string id)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException();//.Where(s => s.Status)
         }
-        //private static StaffDTO ToDTO(Staff staff, Staff parentStaff)
-        //{
-        //    StaffDTO dto = new StaffDTO();
-        //    dto.Id = staff.Id;
-        //    dto.ChName = staff.ChName;
-        //    dto.PhoneNumber = staff.PhoneNumber;
-        //    dto.JobTitle = staff.JobTitle;
-        //    dto.ParentCode = parentStaff.StaffCode;
-        //    dto.ParentId = staff.ParentId;
-        //    dto.ResignationDate = staff.ResignationDate;
-        //    dto.Telephone = staff.Telephone;
-        //    dto.Birthday = staff.Birthday;
-        //    dto.CALLNumber = staff.CALLNumber;
-        //    dto.EnName = staff.EnName;
-        //    dto.DepartmentNumber = staff.DepartmentNumber;
-        //    dto.EmploymentDate = staff.EmploymentDate;
-        //    return dto;
-        //}
+       
         private static Staff ToEntity(StaffDTO dto)
         {
             Staff entity = new Staff();
@@ -90,13 +158,19 @@ namespace UserCenter.Services
             entity.Telephone = dto.Telephone;
             entity.PhoneNumber = dto.PhoneNumber;
             entity.CALLNumber = dto.CALLNumber;
-            entity.DepartmentNumber = dto.DepartmentNumber;
+            entity.DepartmentId = dto.DepartmentId;
             entity.JobTitle = dto.JobTitle;
             entity.Birthday = dto.Birthday;
             entity.EmploymentDate = dto.EmploymentDate;
             entity.ResignationDate = dto.ResignationDate;
             entity.ParentId = dto.ParentId ?? 1;
+            entity.Email = dto.Email;
+            entity.Remark = dto.Remark;
+
             entity.CreateDateTime = dto.CreateDateTime;
+            entity.UpdateTime = dto.UpdateTime;
+            entity.Status = dto.Status;
+            entity.UserName = dto.UserName;
             return entity;
         }
 
@@ -110,7 +184,8 @@ namespace UserCenter.Services
             dto.Telephone = entity.Telephone;
             dto.PhoneNumber = entity.PhoneNumber;
             dto.CALLNumber = entity.CALLNumber;
-            dto.DepartmentNumber = entity.DepartmentNumber;
+            dto.DepartmentId = entity.DepartmentId;
+            dto.DepartmentNumber = entity.Department?.DepartCode;
             dto.JobTitle = entity.JobTitle;
             dto.Birthday = entity.Birthday;
             dto.EmploymentDate = entity.EmploymentDate;
@@ -118,6 +193,10 @@ namespace UserCenter.Services
             dto.CreateDateTime = entity.CreateDateTime;
             dto.ParentCode = entity.ParentStaff?.StaffCode;
             dto.ParentId = entity.ParentId ?? 0;
+
+            dto.Email = entity.Email;
+            dto.Remark = entity.Remark;
+         //   dto.UserName = entity.User?.NickName;//报错
             return dto;
         }
 
@@ -125,10 +204,27 @@ namespace UserCenter.Services
         {
             using (UCDbContext ctx = new UCDbContext())
             {
-                return await ctx.Staffs.CountAsync();
+                return await ctx.Staffs.Where(s => s.Status).CountAsync();
             }
         }
 
-        
+
+        /// <summary>
+        /// 获取到员工上级下拉数据
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<SelectListResultModel>> GetStaffParentSelectItem()
+        {
+            using (UCDbContext ctx = new UCDbContext())
+            {
+                var entitys =  await ctx.Staffs.Where(s => s.Status).ToListAsync();
+                List<SelectListResultModel> result = new List<SelectListResultModel>();
+                foreach (var item in entitys)
+                {
+                    result.Add(new SelectListResultModel {text =item.StaffCode,value=item.Id });
+                }
+                return result;
+            }
+        }
     }
 }

@@ -15,7 +15,10 @@ namespace UserCenter.WebApi.Controllers.v1
         public IUserService UserService { get; set; }
 
         /// <summary>
-        /// http://localhost:1624/api/v1/User/AddNew?phoneNum=120&nickName=hi&password=123
+        /// http://localhost:1624/api/v1/User/AddNew?nickName=tom&password=AAAAA&phoneNum=13676001000
+        /// 还得在head头中加入参数
+        /// AppKey=harryAppKey 【appKey是后台appInfos表中配置的】
+        /// sign=(nickName=tom&password=feifei520&password=13676004620harryAppSecret 【qs得根据名称排序后用&组合，计算（qs+AppSecret的值）计算md5值)】
         /// </summary>
         /// <param name="phoneNum"></param>
         /// <param name="nickName"></param>
@@ -38,6 +41,7 @@ namespace UserCenter.WebApi.Controllers.v1
         {
             return await UserService.CheckLoginAsync(phoneNum, password);
         }
+
         /// <summary>
         /// 用Postman测试，报文头中加入appcode
         /// http://localhost:1624/api/v1/User/GetById/1 

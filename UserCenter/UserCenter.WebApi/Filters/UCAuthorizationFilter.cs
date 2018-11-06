@@ -25,9 +25,11 @@ namespace UserCenter.WebApi.Filters
             CancellationToken cancellationToken, 
             Func<Task<HttpResponseMessage>> continuation)
         {
-            //IEnumerable<string> appKeys;
-            ////获得报文头中的AppKey和Sign
-            //if(!actionContext.Request.Headers.TryGetValues("AppKey", out appKeys))
+          IEnumerable<string> appKeys;
+            var sss = actionContext.Request.Headers.TryGetValues("AppKey", out appKeys);
+            var sss2= actionContext.Request.Headers.TryGetValues("Authorization", out appKeys);
+            //////获得报文头中的AppKey和Sign
+            //if (!actionContext.Request.Headers.TryGetValues("AppKey", out appKeys))
             //{
             //    return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized) { Content = new StringContent("报文头中的AppKey为空") };
             //}
@@ -39,22 +41,22 @@ namespace UserCenter.WebApi.Filters
             //string appKey = appKeys.First();
             //string sign = signs.First();
             //var appInfo = await appInfoService.GetByAppKeyAsync(appKey);
-            //if (appInfo==null)
+            //if (appInfo == null)
             //{
-            //    return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized) { Content=new StringContent("不存在的AppKey") };
+            //    return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized) { Content = new StringContent("不存在的AppKey") };
             //}
             //if (!appInfo.IsEnabled)
             //{
             //    return new HttpResponseMessage(System.Net.HttpStatusCode.Forbidden) { Content = new StringContent("AppKey已经被封禁") };
             //}
-            ////计算用户输入参数的连接+AppSecret的Md5值
-            ////orderedQS就是按照key（参数的名字）进行排序的QueryString集合
-            //var orderdQS = actionContext.Request.GetQueryNameValuePairs().OrderBy(kv=>kv.Key);
+            //////计算用户输入参数的连接+AppSecret的Md5值
+            //////orderedQS就是按照key（参数的名字）进行排序的QueryString集合
+            //var orderdQS = actionContext.Request.GetQueryNameValuePairs().OrderBy(kv => kv.Key);
             //var segments = orderdQS.Select(kv => kv.Key + "=" + kv.Value);//拼接key=value的数组
             //string qs = string.Join("&", segments);//用&符号拼接起来
             //string computeSign = MD5Helper.ComputeMd5(qs + appInfo.AppSecret);//计算qs+secret的md5值
             ////用户传进来md5值和计算出来的比对一下，就知道数据是否有被篡改过
-            //if (sign.Equals(computeSign,StringComparison.CurrentCultureIgnoreCase))
+            //if (sign.Equals(computeSign, StringComparison.CurrentCultureIgnoreCase))
             //{
             //    return await continuation();
             //}
@@ -62,7 +64,6 @@ namespace UserCenter.WebApi.Filters
             //{
             //    return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized) { Content = new StringContent("sign验证失败") };
             //}
-
             return await continuation();
         }
     }
